@@ -1,0 +1,13 @@
+std_msgs/Header header 
+int16 n
+int16 nr_segs
+float32 dt
+float32[] weights
+bool build
+bool simulate
+bool experiment
+bool learning_based
+bool real_time
+bool use_acados
+---
+bool success

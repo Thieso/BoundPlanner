@@ -1,0 +1,12 @@
+services:
+  bound_mpc:
+    image: "bound_planner:latest"
+    container_name: bound_planner
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - ./bound_planner:/home/ubuntu/ros2_ws/src/bound_planner
+      - ./boundmpcmsg:/home/ubuntu/ros2_ws/src/boundmpcmsg
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: "host"

@@ -1,0 +1,5 @@
+std_msgs/Header header
+Vector joint_pos
+Vector object_pos
+---
+bool success

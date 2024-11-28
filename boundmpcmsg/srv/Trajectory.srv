@@ -1,0 +1,22 @@
+std_msgs/Header header
+Vector[] p_via
+Vector[] r_via
+Vector[] bp1
+Vector[] br1
+Vector s
+Vector[] e_p_start
+Vector[] e_p_end
+Vector[] e_p_mid
+Vector[] e_r_start
+Vector[] e_r_end
+Vector[] e_r_mid
+Vector[] a_set
+Vector[] b_set
+Vector[] obstacles
+Vector p0
+Vector q0
+Vector[] obj_centers
+Vector obj_radii
+bool update
+---
+bool success
