@@ -34,6 +34,7 @@ class MPCNode:
         self.q0 = q0
         self.traj = None
         self.ref_data = None
+        self.traj_data = None
         self.p0, _, _ = self.robot_model.forward_kinematics(self.q0, self.q0)
         self.params = get_default_params()
         self.dt = self.params.dt
@@ -122,6 +123,7 @@ class MPCNode:
         )
         self.p_ref = ref_data["p"][1]
         self.traj = traj_data["p"]
+        self.traj_data = traj_data
         self.ref_data = ref_data
 
         # Save some unregular data

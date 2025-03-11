@@ -46,7 +46,7 @@ def get_default_params():
             w_dslack,
         ]
     )
-    params = Params(n=10, dt=0.1, build=True, weights=weights, nr_segs=4)
+    params = Params(n=15, dt=0.1, build=True, weights=weights, nr_segs=4)
     return params
 
 

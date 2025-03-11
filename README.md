@@ -22,7 +22,9 @@ pip install -r requirements.txt
 
 is enough.
 
-For BoundMPC, [Pinocchio](https://stack-of-tasks.github.io/pinocchio/download.html) is needed. The PyPi version of pinocchio does not work as it does not include the Casadi interface. Thus, as of now, please choose an appropriate installation method from their website or use the provided nix flake (see below).
+### Generation of kinematic Casadi functions
+
+For the robot model, [Pinocchio](https://stack-of-tasks.github.io/pinocchio/download.html) is used. The PyPi version (installed with the above command) of pinocchio does include the Casadi interface. Thus, as of now, the Casadi functions for the kinematics are part of this repository. If you want to change the robot model, you have to install Pinocchi as explained on the website.
 
 ## Nix flake
 

@@ -15,7 +15,6 @@ Pipfile.lock
 *.txt
 *.pkl
 *.npz
-*.ca
 *.npy
 *.npz
 run_docker.sh

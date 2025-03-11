@@ -3,24 +3,25 @@ from pathlib import Path
 import casadi as ca
 import numpy as np
 import pinocchio as pin
-from pinocchio import casadi as cpin
 from scipy.spatial.transform import Rotation as R
 
+GEN_CA = False
+CA_SAVE_PATH = "bound_planner/RobotModel/"
 USE_IIWA = True
+if GEN_CA:
+    from pinocchio import casadi as cpin
 
 
 class RobotModel:
     def __init__(self):
-        pinocchio_model_dir = Path(__file__).parent
-        model_path = pinocchio_model_dir
-        mesh_dir = pinocchio_model_dir
+        model_path = Path(__file__).parent
         if USE_IIWA:
             urdf_filename = "iiwa.urdf"
         else:
             urdf_filename = "gen3_arm.urdf"
         urdf_model_path = model_path / urdf_filename
         self.model, collision_model, visual_model = pin.buildModelsFromUrdf(
-            urdf_model_path, package_dirs=mesh_dir
+            urdf_model_path, package_dirs=model_path
         )
         self.ee_id = self.model.getFrameId("end_effector_link")
         self.col_ids = [
@@ -36,7 +37,8 @@ class RobotModel:
             self.col_joint_sizes = [0.09, 0.12, 0.09, 0.10, 0.07, 0.09, 0.075]
         else:
             self.col_joint_sizes = [0.09, 0.09, 0.06, 0.06, 0.06, 0.06, 0.075]
-        self.cmodel = cpin.Model(self.model)
+        if GEN_CA:
+            self.cmodel = cpin.Model(self.model)
         # [self.cmodel.names[i] for i in range(7)]
         # Joint limits
         self.q_lim_lower = self.model.lowerPositionLimit
@@ -145,10 +147,16 @@ class RobotModel:
         if isinstance(q, np.ndarray):
             data = self.model.createData()
             pin.framesForwardKinematics(self.model, data, q)
-        else:
+        elif GEN_CA:
             data = self.cmodel.createData()
             cpin.framesForwardKinematics(self.cmodel, data, q)
-        p = data.oMf[self.ee_id].translation
+        if isinstance(q, np.ndarray) or GEN_CA:
+            p = data.oMf[self.ee_id].translation
+            if GEN_CA and not isinstance(q, np.ndarray):
+                ca.Function("p", [q], [p]).save(f"{CA_SAVE_PATH}fk_pos.ca")
+        else:
+            p_fun = ca.Function.load(f"{CA_SAVE_PATH}fk_pos.ca")
+            p = p_fun(q)
         return p
 
     def fk_pos_col(self, q, i):
@@ -156,14 +164,20 @@ class RobotModel:
             data = self.model.createData()
             pin.forwardKinematics(self.model, data, q)
             pin.framesForwardKinematics(self.model, data, q)
-        else:
+        elif GEN_CA:
             data = self.cmodel.createData()
             cpin.forwardKinematics(self.cmodel, data, q)
             cpin.framesForwardKinematics(self.cmodel, data, q)
-        if i < 5:
-            p = data.oMi[self.col_ids[i]].translation
+        if isinstance(q, np.ndarray) or GEN_CA:
+            if i < 5:
+                p = data.oMi[self.col_ids[i]].translation
+            else:
+                p = data.oMf[self.col_ids[i]].translation
+            if GEN_CA and not isinstance(q, np.ndarray):
+                ca.Function("p", [q], [p]).save(f"{CA_SAVE_PATH}fk_pos_col_{i}.ca")
         else:
-            p = data.oMf[self.col_ids[i]].translation
+            p_fun = ca.Function.load(f"{CA_SAVE_PATH}fk_pos_col_{i}.ca")
+            p = p_fun(q)
         return p
 
     def fk(self, q):
@@ -184,11 +198,16 @@ class RobotModel:
         if isinstance(q, np.ndarray):
             data = self.model.createData()
             pin.framesForwardKinematics(self.model, data, q)
-            p = data.oMf[self.ee_id].homogeneous
-        else:
+        elif GEN_CA:
             data = self.cmodel.createData()
             cpin.framesForwardKinematics(self.cmodel, data, q)
+        if isinstance(q, np.ndarray) or GEN_CA:
             p = data.oMf[self.ee_id].homogeneous
+            if GEN_CA and not isinstance(q, np.ndarray):
+                ca.Function("p", [q], [p]).save(f"{CA_SAVE_PATH}hom_trans.ca")
+        else:
+            p_fun = ca.Function.load(f"{CA_SAVE_PATH}hom_trans.ca")
+            p = p_fun(q)
         return p
 
     def jacobian_fk(self, q):
@@ -199,11 +218,16 @@ class RobotModel:
                 self.model, data, self.ee_id, pin.LOCAL_WORLD_ALIGNED
             )
         else:
-            data = self.cmodel.createData()
-            cpin.computeForwardKinematicsDerivatives(self.cmodel, data, q, q, q)
-            jac = cpin.getFrameJacobian(
-                self.cmodel, data, self.ee_id, pin.LOCAL_WORLD_ALIGNED
-            )
+            if GEN_CA:
+                data = self.cmodel.createData()
+                cpin.computeForwardKinematicsDerivatives(self.cmodel, data, q, q, q)
+                jac = cpin.getFrameJacobian(
+                    self.cmodel, data, self.ee_id, pin.LOCAL_WORLD_ALIGNED
+                )
+                ca.Function("p", [q], [jac]).save(f"{CA_SAVE_PATH}jacobian.ca")
+            else:
+                jac_fun = ca.Function.load(f"{CA_SAVE_PATH}jacobian.ca")
+                jac = jac_fun(q)
         return jac
 
     def djacobian_fk(self, q, dq):
@@ -216,22 +240,15 @@ class RobotModel:
         else:
             data = self.cmodel.createData()
             cpin.computeForwardKinematicsDerivatives(self.cmodel, data, q, dq, dq)
-            djac = cpin.getFrameJacobianTimeVariation(
-                self.cmodel, data, self.ee_id, pin.LOCAL_WORLD_ALIGNED
-            )
+            if GEN_CA:
+                djac = cpin.getFrameJacobianTimeVariation(
+                    self.cmodel, data, self.ee_id, pin.LOCAL_WORLD_ALIGNED
+                )
+                ca.Function("p", [q, dq], [djac]).save(f"{CA_SAVE_PATH}djacobian.ca")
+            else:
+                djac_fun = ca.Function.load(f"{CA_SAVE_PATH}djacobian.ca")
+                djac = djac_fun(q, dq)
         return djac
-
-    def ddjacobian_fk(self, q, dq, ddq):
-        if isinstance(q, np.ndarray):
-            data = self.model.createData()
-            pin.computeForwardKinematicsDerivatives(self.model, data, q, dq, ddq)
-            ddjac = data.ddJ
-        else:
-            data = self.cmodel.createData()
-            cpin.computeForwardKinematicsDerivatives(self.cmodel, data, q, dq, ddq)
-            cpin.forwardKinematics(self.cmodel, data, q)
-            ddjac = data.ddJ
-        return ddjac
 
     def velocity_ee(self, q, dq):
         jac = self.jacobian_fk(q)

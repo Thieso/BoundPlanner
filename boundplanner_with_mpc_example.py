@@ -1,11 +1,13 @@
 import copy
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 from bound_planner.BoundMPC.MPCNode import MPCNode
 from bound_planner.BoundPlanner import BoundPlanner
+from bound_planner.utils.visualization import plot_via_path
 
 USE_RVIZ = False
 if USE_RVIZ:
@@ -134,6 +136,7 @@ def main():
     )
 
     try:
+        p = []
         while mpc_node.mpc.phi_current < mpc_node.mpc.phi_max - 0.001:
             # Do one step
             mpc_node.step()
@@ -150,9 +153,17 @@ def main():
 
                 # Move robot in Rviz
                 rviz_tools_mpc.move_robot_kinematic(mpc_node.t_current, mpc_node.q)
+            else:
+                p.append(mpc_node.traj[:3, 1])
 
     except KeyboardInterrupt:
         mpc_node.stop_thread()
+
+    if not USE_RVIZ:
+        p = np.array(p)
+        plot_via_path(p_via, r_via, sets_via, planner.obs_sets)
+        plt.plot(p[:, 0], p[:, 1], p[:, 2], linewidth=2, color="black")
+        plt.show()
 
 
 if __name__ == "__main__":
