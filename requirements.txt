@@ -1,9 +1,9 @@
-casadi
-numpy==1.26.2
+casadi==3.6.7
+numpy==2.2.2
 scipy==1.13.1
-scikit-learn
-matplotlib==3.7.0
-cvxpy
-networkx
+scikit-learn==1.6.1
+matplotlib==3.10.1
+cvxpy==1.6.3
+networkx==3.4.2
 pycddlib==3.0.2
-pin
+pin==3.4.0
