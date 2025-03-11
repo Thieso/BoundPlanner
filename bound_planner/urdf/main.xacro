@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<robot xmlns:xacro="http://ros.org/wiki/xacro" name="tigs" >
-  <xacro:property name="M_PI" value="3.1415926535897931" />
-  <xacro:arg name="model_dir"   default="$(find bound_planner)/urdf"/>
-  <xacro:property name="model_dir" value="$(arg model_dir)/body"/>
-  <xacro:include filename="${model_dir}/body.xacro"/>
-  <xacro:robot_base name="iiwa" parent="world"/>
-</robot>

@@ -1,71 +1,71 @@
 # BoundPlanner
 
-Implementation of the paper 
-"BoundPlanner: A convex-set-based approach to manipulator trajectory planning". TODO link
+Implementation of the [BoundPlanner ](https://arxiv.org/abs/2502.13286) in combination with [BoundMPC](https://journals.sagepub.com/doi/10.1177/02783649241309354).
+
+The main branch deviates slightly from the implementation in the paper. For the paper experiments see the `paper` branch.
+
+This repository includes a path planner called "BoundPlanner" that plans a path for a receeding horizon trajectory planner called "BoundMPC".
 
 ## Dependencies
 
-We provide a docker container to run the example experiments. A working docker
-installation with docker-compose is needed to use the docker container in this
-repository. Installation instructions can be found on the [docker
-website](https://docs.docker.com).
-
-The implementation uses [ROS2 humble](https://docs.ros.org/en/humble/index.html)
-for inter-proces-communication and [Casadi](https://web.casadi.org/) for the
+The implementation uses [Casadi](https://web.casadi.org/) for the
 automatic differentiation to provide the required analytical derivatives to the
 [Ipopt](https://coin-or.github.io/Ipopt/) solver.
 
+If you only want to run the path planner BoundPlanner, simply installing the requirements using
+
+```
+pip install -r requirements.txt
+```
+
+is enough.
+
+For BoundMPC, [Pinocchio](https://stack-of-tasks.github.io/pinocchio/download.html) is needed. The PyPi version of pinocchio does not work as it does not include the Casadi interface. Thus, as of now, please choose an appropriate installation method from their website or use the provided nix flake (see below).
+
+## Nix flake
+
+We provide a nix flake for convenience which can creates an environment to run the experiments in.
+The environment can be activated using
+
+```
+nix develop .
+```
+
 ## Real-time performance
 
-The experiments do not run in real-time since the [HSL MA57
-solver](https://www.hsl.rl.ac.uk/catalogue/hsl_ma57.html) is required for that.
-This solver is not open source and in the interest of providing runable code to
-everyone, we provide the implmentation without using the HSL MA57 solver.
+The experiments can be made faster by using the [HSL MA57
+solver](https://www.hsl.rl.ac.uk/catalogue/hsl_ma57.html).
+This solver is not open source and in the interest of providing runnable code to
+everyone, we provide the implementation without using the HSL MA57 solver.
 
 ## Running the example experiments
 
-In order to run the provided example you need to first build the docker
-container using
+In order to run the provided example for BoundPlanner without BoundMPC run
 
 ```
-docker build -t bound_planner .
+python boundplanner_example.py
 ```
 
-and then run the docker container with 
+or for BoundPlanner with BoundMPC run
 
 ```
-docker compose up
+python boundplanner_with_mpc_example.py
 ```
 
-The docker container mounts the subdirectories of this repository which makes it
-necessary to build the ROS workspace after the first time you build the
-container. For this, run the following commands:
+## Visualization in RViz
+
+If you want to visualize the results in RViz a [ROS2 humble](https://docs.ros.org/en/humble/index.html) installation is needed.
+
+Build the URDF file for RViz using
 
 ```
-docker exec -it bound_planner bash
-colcon build --symlink-install
-source install/setup.bash
+cd bound_planner/RobotModel
+xacro iiwa14.urdf.xacro mesh_path:=$(pwd) > iiwa_rviz.urdf
 ```
 
-The experiments are then run with
+Set the variable `USE_RVIZ` to `true` at the top of the example file `boundplanner_example.py` or `boundplanner_with_mpc_example.py`.
 
+You can start the RViz config with
 ```
-ros2 launch bound_planner experiment1.launch.py
-```
-
-or
-
-```
-ros2 launch bound_planner experiment2.launch.py
-```
-
-You should see an RViz window with a visualization of the robot during its
-motion.
-
-## Troubleshooting
-
-If you use Linux and do not see an RViz window you need to run 
-
-```
-xhost + 
+ros2 launch launch/rviz.launch.py
 ```

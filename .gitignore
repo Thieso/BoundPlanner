@@ -19,3 +19,8 @@ Pipfile.lock
 *.npy
 *.npz
 run_docker.sh
+.direnv
+build
+bound_planner.egg-info
+iiwa_rviz.urdf
+kinova_rviz.urdf
