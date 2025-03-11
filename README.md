@@ -6,7 +6,7 @@ The main branch deviates slightly from the implementation in the paper. For the 
 
 This repository includes a path planner called "BoundPlanner" that plans a path for a receeding horizon trajectory planner called "BoundMPC".
 
-![bound_planner_schematic](img/schematic_robot.png)
+<img src="img/schematic_robot.png" width=60% height=60%>
 
 ## Dependencies
 
