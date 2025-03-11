@@ -24,7 +24,7 @@ is enough.
 
 ### Generation of kinematic Casadi functions
 
-For the robot model, [Pinocchio](https://stack-of-tasks.github.io/pinocchio/download.html) is used. The PyPi version (installed with the above command) of pinocchio does include the Casadi interface. Thus, as of now, the Casadi functions for the kinematics are part of this repository. If you want to change the robot model, you have to install Pinocchi as explained on the website.
+For the robot model, [Pinocchio](https://stack-of-tasks.github.io/pinocchio/download.html) is used. The PyPi version (installed with the above command) of Pinocchio does include the Casadi interface. Thus, as of now, the Casadi functions for the kinematics are part of this repository. If you want to change the robot model, you have to install Pinocchio as explained on the website.
 
 ## Nix flake
 
