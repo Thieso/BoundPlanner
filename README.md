@@ -1,6 +1,6 @@
 # BoundPlanner
 
-Implementation of the [BoundPlanner ](https://arxiv.org/abs/2502.13286) in combination with [BoundMPC](https://journals.sagepub.com/doi/10.1177/02783649241309354).
+Implementation of the [BoundPlanner](https://ieeexplore.ieee.org/document/10950074) in combination with [BoundMPC](https://journals.sagepub.com/doi/10.1177/02783649241309354).
 
 The main branch deviates slightly from the implementation in the paper. For the paper experiments see the `paper` branch.
 
